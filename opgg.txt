@@ -1,0 +1,3 @@
+%EC%95%84%EB%89%B4:<span class="wins">19W</span>,<span class="losses">26L</span>,<span class="winratio">Win Ratio 42%</span>%EC%95%84%EB%89%B4:19W,26L,Win Ratio 42%%EC%95%84%EB%89%B4:19W,26L,Win Ratio 42%아뉴:19W,26L,Win Ratio 42%아뉴:19W,26L,Win Ratio 42%
+asd:48W,53L,Win Ratio 48%
+333333:54W,47L,Win Ratio 53%
