@@ -58,11 +58,20 @@ get '/lunch-hash' do
     menu=["cake","icecream","waffle"]
     
     #앞에가 string 일때는 =>으로 해쉬값 설정해야함
-    menu_img= {"cake"=> "http://www.twosome.co.kr//Twosome_file/PRODUCT/1488_big_img",
+    menu_img= {"cake"=>"http://www.twosome.co.kr//Twosome_file/PRODUCT/1488_big_img",
     "icecream"=>"https://t1.daumcdn.net/cfile/tistory/25718A375769609E14",
     "waffle"=>"https://assets.simplyrecipes.com/wp-content/uploads/2016/09/Buttermilk-Waffles-vertical-b-1600.jpg" }
     @menu_result=menu.sample
-    puts @menu_result
     @menu_img=menu_img[@menu_result]
     erb :lunchhash
 end
+
+get '/randomgame' do
+    
+    random=["학생","농부","백수","아이돌","선생님","회사원","부자","거지","헬스트레이너","개발자","요리사"]
+    color={"학생"=>"red","농부"=>"#00b33c","백수"=>"#8c8c8c","아이돌"=>"#d580ff","선생님"=>"#00e6b8",
+    "회사원"=>"black","부자"=>"#d580ff","거지"=>"#8c8c8c","헬스트레이너"=>"#00e6b8","개발자"=>"#8c8c8c","요리사"=>"#00b33c"}
+    @result=random.sample
+    @color=color[@result]
+    erb :random
+    end
