@@ -1,6 +1,24 @@
 require 'sinatra'
 require "sinatra/reloader"
 
+require "rest-client"
+require "json"
+
+require 'httparty'
+require 'nokogiri'
+require 'uri'
+require 'date'
+require 'csv'
+
+#아래 메소드들을 실행하기 전에 항상 실행하는 부분
+    before do 
+        p "*************************"#서버에 로그로 찍힘
+        p params
+        p request.path_info #사용자가 요청보낸 경로
+        p request.fullpath #파라미터까지 포함한 경로
+        p"**************************"
+        end
+    
 
 get '/' do
   'Hello world!~~welcome'
@@ -74,4 +92,100 @@ get '/randomgame' do
     @result=random.sample
     @color=color[@result]
     erb :random
+    end
+    
+    get '/lotto-sample' do
+    #랜덤하게 로또번호 출력
+  # @lotto =(1..45).to_a.sample(6).sort
+   @lotto=[6,11,15,17,23,39]
+    #render to erb
+    url="http://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo=809"
+    @lotto_info = RestClient.get(url)#json data 
+    @lotto_hash=JSON.parse(@lotto_info)
+    @lotto_num=[] 
+ 
+   @lotto_hash.each do |k,v| #여기서 k랑 v는 hash안에 key,value값을 의미
+   @lotto_num << v if k.include?("drwtNo")
+     end 
+     
+     
+     #몇 개가 맞았는지 확인
+     #첫번쨰 방법
+     @result=(@lotto&@lotto_num).length
+     
+     
+     #두번째 방법
+      @result2=0
+     @lotto_num.each do |v|
+         @result2 +=1 if @lotto.include?(v)
+     end
+    
+    #보너스 넘버
+     @bonus_num=@lotto_hash["bnusNo"]
+
+
+     #몇 등인지 if
+     
+    if @result==3
+         @win="5등 입니다."
+    elsif @result==4
+         @win="4등 입니다."
+    elsif  @result==5&&@lotto.include?(@bonus_num)
+         @win="2등 입니다."
+    elsif @result==5
+         @win="3등 입니다."
+    elsif @result==6
+         @win="1등 입니다."
+    else @win="꽝"
+    end
+    
+    #몇 등인지 case
+    @win2=
+    case[ @result,@lotto.include?(@bonus_num)]
+    when [6,false] then "1등" # 이 값이 리턴되므로 case문르 변수로 받으면 이값을 받는 것과 같음
+    when [5,true] then "2등"
+    when [5,false] then "3등"
+    when [4,false] then "4등"
+    when [3,false] then "5등"
+    else "꽝"
+    end
+    erb :lotto
+    end
+    
+    
+    
+
+    get '/form' do
+        erb :form
+    end
+    
+    get '/search' do
+        @keyword=params[:keyword]
+        url='https://search.naver.com/search.naver?&query='
+        redirect to (url+@keyword)
+       #erb :search 
+    end
+    
+    get '/opgg' do
+        erb :opgg
+        
+    end
+    
+    get '/opggresult' do
+       url="http://www.op.gg/summoner/userName="
+       @userName=params[:userName]
+       #encoding
+       @encodeName=URI.encode(@userName)
+       
+       @res=HTTParty.get(url+@encodeName)
+       #이떄는 redirect랑 다르게 페이지의 html을 가져와서 보여주는 방식
+       
+       @doc=Nokogiri::HTML(@res.body)
+       @win=@doc.css("#SummonerLayoutContent > div.tabItem.Content.SummonerLayoutContent.summonerLayout-summary > div.SideContent > div.TierBox.Box > div.SummonerRatingMedium > div.TierRankInfo > div.TierInfo > span.WinLose > span.wins")
+       @lose=@doc.css("#SummonerLayoutContent > div.tabItem.Content.SummonerLayoutContent.summonerLayout-summary > div.SideContent > div.TierBox.Box > div.SummonerRatingMedium > div.TierRankInfo > div.TierInfo > span.WinLose > span.losses")
+       @rank=@doc.css("#SummonerLayoutContent > div.tabItem.Content.SummonerLayoutContent.summonerLayout-summary > div.SideContent > div.TierBox.Box > div.SummonerRatingMedium > div.TierRankInfo > div.TierInfo > span.WinLose > span.winratio")
+       @level=@doc.css("#SummonerLayoutContent > div.tabItem.Content.SummonerLayoutContent.summonerLayout-summary > div.SideContent > div.TierBox.Box > div.SummonerRatingMedium > div.TierRankInfo > div.TierRank")
+
+       
+       erb:opggresult
     end
